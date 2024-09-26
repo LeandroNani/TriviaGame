@@ -41,9 +41,9 @@ class TriviaViewModel: ObservableObject {
                
                //[weak self]: Isso é uma técnica para evitar ciclos de retenção (retain cycles) que podem acontecer quando você usa self dentro de uma closure.
                //Um ciclo de retenção ocorre quando dois objetos mantêm uma referência forte um ao outro, impedindo que sejam desalocados da memória, mesmo quando não são mais necessários. Isso pode levar a vazamentos de memória.
-               //Nesse caso, a closure da dataTask captura implicitamente self (a instância da TriviaViewModel). Se a TriviaViewModel também mantivesse uma referência forte à closure (o que pode acontecer indiretamente), você teria um ciclo de retenção.
+               //Nesse caso, a closure da dataTask captura implicitamente self (a instância da TriviaViewModel). Se a TriviaViewModel também mantivesse uma referência forte à closure (o que pode acontecer indiretamente), eu teria um ciclo de retenção.
                //Usar [weak self] na closure resolve esse problema. Uma referência weak não impede que um objeto seja desalocado. Assim, mesmo que a closure ainda esteja em andamento, self pode ser desalocado se não houver mais nenhuma outra referência forte a ele.
-               //nao entendi bem essa parte ainda.
+               //nao entendi bem essa parte ainda de ciclo de retencao.
                
                //data: Contém os dados brutos (em formato Data) recebidos do servidor, se a requisição for bem-sucedida.
                
