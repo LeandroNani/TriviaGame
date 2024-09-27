@@ -13,20 +13,25 @@ struct TriviaView: View {
     @State private var showMessage = false
     @State private var message = ""
     
+    @State private var animateGradient: Bool = false
+    
+    private let startColor: Color = .blue
+    private let endColor: Color = .pink
+    
     var body: some View {
         ZStack {
-        VStack {
-            if gameStarted {
-                if viewModel.isLoading {
-                    ProgressView() // indica o carregamento
-                } else if viewModel.currentQuestionIndex < viewModel.questions.count{
-                    
-                    Text("Score: \(viewModel.score)")
-                        .font(.title)
-                        .padding()
-                    
-                    let question = viewModel.questions[viewModel.currentQuestionIndex]
-
+            VStack {
+                if gameStarted {
+                    if viewModel.isLoading {
+                        ProgressView() // indica o carregamento
+                    } else if viewModel.currentQuestionIndex < viewModel.questions.count{
+                        
+                        Text("Score: \(viewModel.score)")
+                            .font(.title)
+                            .padding()
+                        
+                        let question = viewModel.questions[viewModel.currentQuestionIndex]
+                        
                         // Exibe a imagem relacionada a pergunta
                         if let imageURL = viewModel.currentImageURL {
                             AsyncImage(url: imageURL) { image in
@@ -70,38 +75,53 @@ struct TriviaView: View {
                 }
             }
             if showMessage { //MODAL de resultado e proxima pergunta
-                            Rectangle()
-                                .fill(Color.black.opacity(0.5))
-                                .edgesIgnoringSafeArea(.all)
-
-                            VStack {
-                                Text(message)
-                                    .foregroundColor(message == "Wrong Answer" ? .red : .green)
-                                    .font(.largeTitle)
-                                    .padding()
-
-                                Button("Next Question") {
-                                    viewModel.goToNextQuestion()
-                                    showMessage = false
-                                }
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                            }
-                            .frame(width: 300, height: 200)
-                            .background(Color.white)
-                            .cornerRadius(20)
-                        }
-                    } // Fim da ZStack
-                    .onAppear {
-                        viewModel.showModal = { message in
-                            self.message = message
-                            self.showMessage = !message.isEmpty
-                        }
+                Rectangle()
+                    .fill(Color.black.opacity(0.5))
+                    .edgesIgnoringSafeArea(.all)
+                
+                VStack {
+                    Text(message)
+                        .foregroundColor(message == "Wrong Answer" ? .red : .green)
+                        .font(.largeTitle)
+                        .padding()
+                    
+                    Button("Next Question") {
+                        viewModel.goToNextQuestion()
+                        showMessage = false
                     }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                .frame(width: 300, height: 200)
+                .background(Color.white)
+                .cornerRadius(20)
+            }
+        } // Fim da ZStack
+        .frame(maxWidth: .infinity)
+                .foregroundColor(.black)
+                .padding(.horizontal)
+                .multilineTextAlignment(.center)
+                .background {
+                    LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        .edgesIgnoringSafeArea(.all)
+                        .hueRotation(.degrees(animateGradient ? 45 : 0))
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
+                                animateGradient.toggle()
+                            }
+                        }
+                }
+        .onAppear {
+            viewModel.showModal = { message in
+                self.message = message
+                self.showMessage = !message.isEmpty
+            }
         }
     }
+    
+}
 
 #Preview {
     TriviaView()
