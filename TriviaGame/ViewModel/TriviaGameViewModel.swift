@@ -130,8 +130,21 @@ class TriviaViewModel: ObservableObject {
     
     //Checa se a resposta é a certa da questao
     //for: Atua como um nome de parâmetro externo, tornando a chamada da função mais legível.
-    func checkAnswer (for question: TriviaQuestion, selectedAnswer: String) -> Bool {
-        selectedAnswer == question.correct_answer ? true:  false
+    func checkAnswer(for question: TriviaQuestion, selectedAnswer: String) {
+        if selectedAnswer == question.correct_answer {
+            score += 1
+        }
+        // Avança para a próxima pergunta, independentemente de acertar ou errar
+        goToNextQuestion()
+    }
+    
+    func goToNextQuestion() {
+        if currentQuestionIndex < questions.count - 1 {
+            currentQuestionIndex += 1
+        } else {
+            // Fim do jogo
+            // Falta inserir a logica para lidar com o fim do jogo
+        }
     }
         
 }
