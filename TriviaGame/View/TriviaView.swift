@@ -10,8 +10,11 @@ import SwiftUI
 struct TriviaView: View {
     @StateObject private var viewModel = TriviaViewModel()
     @State private var gameStarted = false // Controla se o jogo começou
+    @State private var showMessage = false
+    @State private var message = ""
     
     var body: some View {
+        ZStack {
         VStack {
             if gameStarted {
                 if viewModel.isLoading {
@@ -66,6 +69,37 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
+            if showMessage {
+                            Rectangle()
+                                .fill(Color.black.opacity(0.5))
+                                .edgesIgnoringSafeArea(.all)
+
+                            VStack {
+                                Text(message)
+                                    .foregroundColor(message == "Wrong Answer" ? .red : .green)
+                                    .font(.largeTitle)
+                                    .padding()
+
+                                Button("Next Question") {
+                                    viewModel.goToNextQuestion()
+                                    showMessage = false
+                                }
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                            .frame(width: 300, height: 200)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                        }
+                    } // Fim da ZStack
+                    .onAppear {
+                        viewModel.showModal = { message in
+                            self.message = message
+                            self.showMessage = !message.isEmpty
+                        }
+                    }
         }
     }
 

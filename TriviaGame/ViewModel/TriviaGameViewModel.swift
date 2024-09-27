@@ -14,6 +14,10 @@ class TriviaViewModel: ObservableObject {
     @Published var currentImageURL: URL? // URL da imagem da Unsplash
     @Published var isLoading = false // Indicador de carregamento
     @Published var score = 0 // Pontuação do jogador
+    @Published var message = ""
+    
+    // Closure para controlar a exibição do modal apos respostas na View
+        var showModal: ((_ message: String) -> Void)?
     
     private let triviaBaseURL = "https://opentdb.com/api.php?amount=10"
     private let unsplashBaseURL = "https://api.unsplash.com/search/photos"
@@ -80,7 +84,7 @@ class TriviaViewModel: ObservableObject {
                    //DispatchQueue é o gerenciador de threads, utilizando .main eu solicito que ele utilize a thread principal ( a thread principal é a unica que atualiza a interface do usuario ) e utilizo o .async para indicar que é um bloco de código assincrono
                    DispatchQueue.main.async {
                        self?.questions = triviaData.results // Atualiza a array de perguntas
-                       self?.fetchImage(for: self?.questions.first?.category ?? "") // Busca a imagem relacionada a primeira pergunta
+                       self?.fetchImage(for: self?.questions.first?.category ?? "")
                    }
                } catch {
                    print("Erro ao decodificar dados da API Trivia: \(error)")
@@ -128,19 +132,24 @@ class TriviaViewModel: ObservableObject {
         }.resume()
     }
     
+    
     //Checa se a resposta é a certa da questao
     //for: Atua como um nome de parâmetro externo, tornando a chamada da função mais legível.
     func checkAnswer(for question: TriviaQuestion, selectedAnswer: String) {
-        if selectedAnswer == question.correct_answer {
-            score += 1
+            if selectedAnswer == question.correct_answer {
+                score += 1
+                showModal?("Correct Answer") // Chama a closure para exibir o modal
+            } else {
+                showModal?("Wrong Answer") // Chama a closure para exibir o modal
+            }
+
         }
-        // Avança para a próxima pergunta, independentemente de acertar ou errar
-        goToNextQuestion()
-    }
     
     func goToNextQuestion() {
         if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
+            currentImageURL = nil
+            fetchImage(for: questions[currentQuestionIndex].category) // Busca a imagem relacionada a proxima pergunta
         } else {
             // Fim do jogo
             // Falta inserir a logica para lidar com o fim do jogo
