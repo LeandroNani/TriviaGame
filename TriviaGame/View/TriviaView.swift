@@ -35,7 +35,13 @@ struct TriviaView: View {
                             .padding()
 
                         // Exibe as opções de resposta
-                        
+                        Section(header: Text("**Click on the right answer**").font(.title).padding()){
+                            ForEach(question.answers,id: \.self){ answer in
+                                Text(answer)
+                                    .font(.title3)
+                                    .padding()
+                            }
+                        }
                     }
                 } else {
                     //Tela inicial com o botão "PLAY"

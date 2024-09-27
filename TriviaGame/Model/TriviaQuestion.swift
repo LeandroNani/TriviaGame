@@ -18,4 +18,11 @@ struct TriviaQuestion: Decodable { // Ao declarar minha struct como DECODABLE eu
     let question: String
     let correct_answer: String
     let incorrect_answers: [String]
+    
+    var answers: [String] { // Propriedade calculada, pois da forma que estava(como os atributos a cima) antes nao tava conseguindo decodificar o atributo answers
+            var allAnswers = incorrect_answers
+            allAnswers.append(correct_answer)
+            allAnswers.shuffle()
+            return allAnswers
+        }
 }
