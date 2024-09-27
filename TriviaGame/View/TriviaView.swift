@@ -17,7 +17,13 @@ struct TriviaView: View {
                 if viewModel.isLoading {
                     ProgressView() // indica o carregamento
                 } else if viewModel.currentQuestionIndex < viewModel.questions.count{
+                    
+                    Text("Score: \(viewModel.score)")
+                        .font(.title)
+                        .padding()
+                    
                     let question = viewModel.questions[viewModel.currentQuestionIndex]
+
                         // Exibe a imagem relacionada a pergunta
                         if let imageURL = viewModel.currentImageURL {
                             AsyncImage(url: imageURL) { image in
