@@ -10,13 +10,14 @@ import SwiftUI
 struct TriviaView: View {
     @StateObject private var viewModel = TriviaViewModel()
     @State private var gameStarted = false // Controla se o jogo começou
-
+    
     var body: some View {
-            VStack {
-                if gameStarted {
-                    if viewModel.isLoading {
-                        ProgressView() // indica o carregamento
-                    } else if let question = viewModel.questions.first {
+        VStack {
+            if gameStarted {
+                if viewModel.isLoading {
+                    ProgressView() // indica o carregamento
+                } else if viewModel.currentQuestionIndex < viewModel.questions.count{
+                    let question = viewModel.questions[viewModel.currentQuestionIndex]
                         // Exibe a imagem relacionada a pergunta
                         if let imageURL = viewModel.currentImageURL {
                             AsyncImage(url: imageURL) { image in
@@ -28,20 +29,20 @@ struct TriviaView: View {
                             }
                             .frame(height: 200)
                         }
-
+                        
                         // Exibe a pergunta atual
                         Text(question.question)
                             .font(.title)
                             .padding()
-
+                        
                         // Exibe as opções de resposta
                         Section(header: Text("**Click on the right answer**").font(.title).padding()){
                             ForEach(question.answers,id: \.self){ answer in
                                 Button(answer){
                                     viewModel.checkAnswer(for: question, selectedAnswer: answer)
                                 }
-                                    .font(.title3)
-                                    .padding()
+                                .font(.title3)
+                                .padding()
                             }
                         }
                     }
@@ -59,8 +60,8 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
+        }
     }
-}
 
 #Preview {
     TriviaView()
