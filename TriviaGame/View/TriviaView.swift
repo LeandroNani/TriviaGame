@@ -69,7 +69,7 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
-            if showMessage {
+            if showMessage { //MODAL de resultado e proxima pergunta
                             Rectangle()
                                 .fill(Color.black.opacity(0.5))
                                 .edgesIgnoringSafeArea(.all)
