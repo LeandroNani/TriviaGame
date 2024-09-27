@@ -127,5 +127,11 @@ class TriviaViewModel: ObservableObject {
             }
         }.resume()
     }
+    
+    //Checa se a resposta é a certa da questao
+    //for: Atua como um nome de parâmetro externo, tornando a chamada da função mais legível.
+    func checkAnswer (for question: TriviaQuestion, selectedAnswer: String) -> Bool {
+        selectedAnswer == question.correct_answer ? true:  false
+    }
         
 }

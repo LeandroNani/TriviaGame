@@ -37,7 +37,9 @@ struct TriviaView: View {
                         // Exibe as opções de resposta
                         Section(header: Text("**Click on the right answer**").font(.title).padding()){
                             ForEach(question.answers,id: \.self){ answer in
-                                Text(answer)
+                                Button(answer){
+                                    viewModel.checkAnswer(for: question, selectedAnswer: answer)
+                                }
                                     .font(.title3)
                                     .padding()
                             }
