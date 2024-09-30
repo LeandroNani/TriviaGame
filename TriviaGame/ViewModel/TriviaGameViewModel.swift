@@ -119,14 +119,13 @@ class TriviaViewModel: ObservableObject {
                 return
             }
             
-            let randomInt = Int.random(in: 1..<1000) // dessa forma vou gerar um numero aleatorio para cada vez pegar uma imagem diferente
-            
             do {
                 let decoder = JSONDecoder()
                 let imageData = try decoder.decode(UnsplashResponse.self, from: data)
 
                 DispatchQueue.main.async {
-                    self?.currentImageURL = imageData.results[randomInt].urls["regular"].flatMap { URL(string: $0) }
+                    let randomIndex = Int.random(in: 0..<imageData.results.count) // dessa forma eu pego imagens aleatorias do vetor de imagens
+                    self?.currentImageURL = imageData.results[randomIndex].urls["regular"].flatMap { URL(string: $0) }
                 }
             } catch {
                 print("Erro ao decodificar dados da API da Unsplash: \(error)")
