@@ -16,7 +16,7 @@ struct TriviaView: View {
     @State private var animateGradient: Bool = false
     
     private let startColor: Color = .blue
-    private let endColor: Color = .pink
+    private let endColor: Color = .white
     
     var body: some View {
         ZStack {
@@ -46,8 +46,7 @@ struct TriviaView: View {
                         
                         // Exibe a pergunta atual
                         Text(question.question)
-                            .font(.title)
-                            .padding()
+                            .font(.title2)
                         
                         // Exibe as opções de resposta
                         Section(header: Text("**Click on the right answer**").font(.title).padding()){
@@ -57,6 +56,9 @@ struct TriviaView: View {
                                 }
                                 .font(.title3)
                                 .padding()
+                                .frame(width: 300, alignment: .center)
+                                .background(Color.white)
+                                .cornerRadius(10)
                             }
                         }
                     }
@@ -74,6 +76,20 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
+            .ignoresSafeArea()
+            .frame(maxWidth: .infinity)
+                    .foregroundColor(.black)
+                    .padding(.horizontal)
+                    .multilineTextAlignment(.center)
+                    .background {
+                        LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            .hueRotation(.degrees(animateGradient ? 45 : 0))
+                            .onAppear {
+                                withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
+                                    animateGradient.toggle()
+                                }
+                            }
+                    }
             if showMessage { //MODAL de resultado e proxima pergunta
                 Rectangle()
                     .fill(Color.black.opacity(0.5))
@@ -99,20 +115,6 @@ struct TriviaView: View {
                 .cornerRadius(20)
             }
         } // Fim da ZStack
-        .frame(maxWidth: .infinity)
-                .foregroundColor(.black)
-                .padding(.horizontal)
-                .multilineTextAlignment(.center)
-                .background {
-                    LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        .edgesIgnoringSafeArea(.all)
-                        .hueRotation(.degrees(animateGradient ? 45 : 0))
-                        .onAppear {
-                            withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
-                                animateGradient.toggle()
-                            }
-                        }
-                }
         .onAppear {
             viewModel.showModal = { message in
                 self.message = message
