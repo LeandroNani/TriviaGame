@@ -20,6 +20,14 @@ struct TriviaView: View {
     
     var body: some View {
         ZStack {
+            LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .hueRotation(.degrees(animateGradient ? 45 : 0))
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
+                        animateGradient.toggle()
+                    }
+                }
+            
             VStack {
                 if gameStarted {
                     if viewModel.isLoading {
@@ -47,6 +55,7 @@ struct TriviaView: View {
                         // Exibe a pergunta atual
                         Text(question.question)
                             .font(.title2)
+                            .padding()
                         
                         // Exibe as opções de resposta
                         Section(header: Text("**Click on the right answer**").font(.title).padding()){
@@ -76,20 +85,6 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
-            .ignoresSafeArea()
-            .frame(maxWidth: .infinity)
-                    .foregroundColor(.black)
-                    .padding(.horizontal)
-                    .multilineTextAlignment(.center)
-                    .background {
-                        LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
-                            .hueRotation(.degrees(animateGradient ? 45 : 0))
-                            .onAppear {
-                                withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
-                                    animateGradient.toggle()
-                                }
-                            }
-                    }
             if showMessage { //MODAL de resultado e proxima pergunta
                 Rectangle()
                     .fill(Color.black.opacity(0.5))
@@ -115,6 +110,7 @@ struct TriviaView: View {
                 .cornerRadius(20)
             }
         } // Fim da ZStack
+        .ignoresSafeArea()
         .onAppear {
             viewModel.showModal = { message in
                 self.message = message

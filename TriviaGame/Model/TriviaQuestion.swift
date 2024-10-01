@@ -25,4 +25,6 @@ struct TriviaQuestion: Decodable { // Ao declarar minha struct como DECODABLE eu
             allAnswers.shuffle()
             return allAnswers
         }
+    
 }
+
