@@ -156,5 +156,11 @@ class TriviaViewModel: ObservableObject {
             // Falta inserir a logica para lidar com o fim do jogo
         }
     }
+    
+    func restartGame(){
+        currentQuestionIndex = 0
+        currentImageURL = nil
+        fetchQuestions()
+    }
         
 }

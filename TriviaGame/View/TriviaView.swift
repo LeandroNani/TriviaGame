@@ -95,17 +95,47 @@ struct TriviaView: View {
                         .foregroundColor(message == "Wrong Answer" ? .red : .green)
                         .font(.largeTitle)
                         .padding()
-                    
-                    Button("Next Question") {
-                        viewModel.goToNextQuestion()
-                        showMessage = false
+                    if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
+                        Button("Next Question") {
+                            viewModel.goToNextQuestion()
+                            showMessage = false
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                     }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    else {
+                        Text("Finished!")
+                            .foregroundColor(.blue)
+                            .font(.largeTitle)
+                            .padding()
+                        
+                        Text("Congrats! Score: \(viewModel.score)")
+                            .foregroundColor(.green)
+                            .font(.largeTitle)
+                            .padding()
+                        
+                        Button("Restart Game") {
+                            viewModel.restartGame()
+                            showMessage = false
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        
+                        Button("Back to Menu") {
+                            gameStarted = false
+                            showMessage = false
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
                 }
-                .frame(width: 300, height: 200)
+                .frame(width: viewModel.currentQuestionIndex < viewModel.questions.count - 1 ? 300 : 700, height: 200)
                 .background(Color.white)
                 .cornerRadius(20)
             }
