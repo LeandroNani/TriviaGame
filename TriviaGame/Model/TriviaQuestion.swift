@@ -20,16 +20,20 @@ struct TriviaQuestion: Decodable { // Ao declarar minha struct como DECODABLE eu
     let incorrect_answers: [String]
     
     var answers: [String] { // Propriedade calculada, pois da forma que estava(como os atributos a cima) antes nao tava conseguindo decodificar o atributo answers
-            var allAnswers = incorrect_answers
-            allAnswers.append(correct_answer)
-            allAnswers.shuffle()
-            return allAnswers
-        }
+        var allAnswers = incorrect_answers.map { $0.decodeHtmlEntities() ?? "" } // o metodo map percorre por cada elemento do array e aplica o que ta dentro das chaves em cada um.
+        allAnswers.append(answerDecoded)
+        allAnswers.shuffle()
+        return allAnswers
+    }
     
     // Computed property para decodificar a pergunta
-        var questionDecoded: String {
-            return question.decodeHtmlEntities() ?? ""
-        }
+    var questionDecoded: String {
+        return question.decodeHtmlEntities() ?? ""
+    }
     
+    var answerDecoded: String {
+        return correct_answer.decodeHtmlEntities() ?? ""
+    }
+        
 }
 
