@@ -53,7 +53,7 @@ struct TriviaView: View {
                         }
                         
                         // Exibe a pergunta atual
-                        Text(question.question)
+                        Text(question.questionDecoded)
                             .font(.title2)
                             .padding()
                         

@@ -26,5 +26,10 @@ struct TriviaQuestion: Decodable { // Ao declarar minha struct como DECODABLE eu
             return allAnswers
         }
     
+    // Computed property para decodificar a pergunta
+        var questionDecoded: String {
+            return question.decodeHtmlEntities() ?? ""
+        }
+    
 }
 
