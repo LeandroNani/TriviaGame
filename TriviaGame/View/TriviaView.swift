@@ -135,7 +135,7 @@ struct TriviaView: View {
                         .cornerRadius(10)
                     }
                 }
-                .frame(width: viewModel.currentQuestionIndex < viewModel.questions.count - 1 ? 300 : 700, height: 200)
+                .frame(width: 300, height: viewModel.currentQuestionIndex < viewModel.questions.count - 1 ? 200 : 600)
                 .background(Color.white)
                 .cornerRadius(20)
             }
