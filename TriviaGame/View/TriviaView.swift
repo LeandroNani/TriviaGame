@@ -13,6 +13,9 @@ struct TriviaView: View {
     @State private var showMessage = false
     @State private var message = ""
     
+    @State private var showOptions = false
+    @State private var selectedNumberOfQuestions = 10
+    
     @State private var animateGradient: Bool = false
     
     private let startColor: Color = .blue
@@ -75,7 +78,7 @@ struct TriviaView: View {
                     //Tela inicial com o botão "PLAY"
                     //** ** deixa o texto BOLD
                     Button("**PLAY**") {
-                        viewModel.fetchQuestions() // Busca as perguntas ao iniciar
+                        viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
                         print(viewModel.questions)
                         gameStarted = true
                     }
@@ -83,8 +86,43 @@ struct TriviaView: View {
                     .padding()
                     .background(Color.green)
                     .cornerRadius(10)
+                    
+                    
+                    Button("OPTIONS") {
+                        showOptions = true
+                    }
+                    .font(.callout)
+                    .padding()
+                    .background(Color.green)
+                    .cornerRadius(10)
                 }
             }
+            // Modal de Opções
+            .sheet(isPresented: $showOptions) {
+                VStack {
+                    Text("Select Number of Questions")
+                        .font(.title2)
+                        .padding()
+                    
+                    Picker("Number of Questions", selection: $selectedNumberOfQuestions) {
+                        ForEach(5..<31, id: \.self) { number in
+                            Text("\(number)")
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    
+                    Button("Confirm") {
+                        showOptions = false
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black)
+                    .cornerRadius(10)
+                }
+                .padding()
+            }
+        
+            
             if showMessage { //MODAL de resultado e proxima pergunta
                 Rectangle()
                     .fill(Color.black.opacity(0.5))
@@ -117,7 +155,7 @@ struct TriviaView: View {
                             .padding()
                         
                         Button("Restart Game") {
-                            viewModel.restartGame()
+                            viewModel.restartGame(amount: selectedNumberOfQuestions)
                             showMessage = false
                         }
                         .padding()

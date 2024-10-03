@@ -19,15 +19,15 @@ class TriviaViewModel: ObservableObject {
     // Closure para controlar a exibição do modal apos respostas na View
         var showModal: ((_ message: String) -> Void)?
     
-    private let triviaBaseURL = "https://opentdb.com/api.php?amount=10"
+    private let triviaBaseURL = "https://opentdb.com/api.php?amount="
     private let unsplashBaseURL = "https://api.unsplash.com/search/photos"
     private let unsplashApiKey = "ytcCruuH67rTRETZseNqJiL8XtUAA-kZSFuFpaVJ70o"
 
     // Função para buscar as perguntas da API Trivia
-       func fetchQuestions() {
+    func fetchQuestions(amount: Int) {
            isLoading = true // Inicia o indicador de carregamento
            // guard let é uma estrutura pra lidar com o desempacotamento de uma variavel, que se nao vor válida, entra no else.
-           guard let url = URL(string: triviaBaseURL) else {
+           guard let url = URL(string: "\(triviaBaseURL)\(amount)") else {
                isLoading = false
                // aqui eu deveria lidar com o erro, sinalizar que a url é invalida
                return
@@ -157,10 +157,10 @@ class TriviaViewModel: ObservableObject {
         }
     }
     
-    func restartGame(){
+    func restartGame(amount:Int){
         currentQuestionIndex = 0
         currentImageURL = nil
-        fetchQuestions()
+        fetchQuestions(amount: amount)
     }
         
 }
