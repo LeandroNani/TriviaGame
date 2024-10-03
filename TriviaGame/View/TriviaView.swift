@@ -55,6 +55,7 @@ struct TriviaView: View {
                             .frame(height: 200)
                         }
                         
+                        Text("Question: \(viewModel.currentQuestionIndex) / \(selectedNumberOfQuestions)")
                         // Exibe a pergunta atual
                         Text(question.questionDecoded)
                             .font(.title2)
@@ -69,8 +70,9 @@ struct TriviaView: View {
                                 .font(.title3)
                                 .padding()
                                 .frame(width: 300, alignment: .center)
-                                .background(Color.white)
+                                .background(Color(showMessage && answer == question.correct_answer ? .green : .white))
                                 .cornerRadius(10)
+                                .foregroundColor(.black)
                             }
                         }
                     }
