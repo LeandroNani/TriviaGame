@@ -71,17 +71,11 @@ struct TriviaView: View {
                         }
                     }
                 } else {
-                    //Tela inicial com o botão "PLAY"
-                    //** ** deixa o texto BOLD
-                    Button("**PLAY**") {
-                        viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
-                        print(viewModel.questions)
-                        gameStarted = true
-                    }
-                    .font(.largeTitle)
-                    .padding()
-                    .background(Color.green)
-                    .cornerRadius(10)
+                    //Tela inicial com o botão "PLAY" e "OPTIONS"
+                    PlayButton(viewModel: viewModel,
+                                               selectedNumberOfQuestions: selectedNumberOfQuestions,
+                                               gameStarted: $gameStarted)
+                    //O símbolo $ antes de uma variável de estado em SwiftUI é usado para criar um Binding
                     
                     
                     Button("OPTIONS") {
@@ -206,5 +200,26 @@ struct FundoGradient: View {
                     animateGradient.toggle()
                 }
             }
+    }
+}
+
+struct PlayButton: View {
+    @ObservedObject var viewModel: TriviaViewModel
+    
+    let selectedNumberOfQuestions: Int
+    @Binding var gameStarted: Bool
+    //O @Binding cria uma conexão bidirecional entre a propriedade gameStarted na PlayButton e a variável de estado gameStarted na TriviaView. Isso permite que o botão "PLAY" atualize o estado do jogo na View principal.
+    
+    var body: some View{
+        //** ** deixa o texto BOLD
+        Button("**PLAY**") {
+            viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
+            print(viewModel.questions)
+            gameStarted = true
+        }
+        .font(.largeTitle)
+        .padding()
+        .background(Color.green)
+        .cornerRadius(10)
     }
 }
