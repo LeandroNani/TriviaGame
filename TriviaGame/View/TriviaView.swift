@@ -23,13 +23,7 @@ struct TriviaView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .hueRotation(.degrees(animateGradient ? 45 : 0))
-                .onAppear {
-                    withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
-                        animateGradient.toggle()
-                    }
-                }
+            FundoGradient();
             
             VStack {
                 if gameStarted {
@@ -193,4 +187,24 @@ struct TriviaView: View {
 
 #Preview {
     TriviaView()
+}
+
+
+//MODULARIZAÇÃO DA VIEW:
+
+struct FundoGradient: View {
+    @State private var animateGradient: Bool = false
+    
+    private let startColor: Color = .blue
+    private let endColor: Color = .white
+
+    var body: some View {
+        LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
+            .hueRotation(.degrees(animateGradient ? 45 : 0))
+            .onAppear {
+                withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
+                    animateGradient.toggle()
+                }
+            }
+    }
 }
