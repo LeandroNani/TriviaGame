@@ -9,17 +9,16 @@ import SwiftUI
 
 struct TriviaView: View {
     @StateObject private var viewModel = TriviaViewModel()
+    
     @State private var gameStarted = false // Controla se o jogo começou
+    @State private var showOptions = false
     @State private var showMessage = false
     @State private var message = ""
-    
-    @State private var showOptions = false
     @State private var selectedNumberOfQuestions = 10
     
+    // tudo que tem logica tem que estar na viewmodel, apenas na view o que for relativo a tela
     @State private var animateGradient: Bool = false
     
-    private let startColor: Color = .blue
-    private let endColor: Color = .white
     
     var body: some View {
         ZStack {
@@ -72,9 +71,7 @@ struct TriviaView: View {
                     }
                 } else {
                     //Tela inicial com o botão "PLAY" e "OPTIONS"
-                    PlayButton(viewModel: viewModel,
-                                               selectedNumberOfQuestions: selectedNumberOfQuestions,
-                                               gameStarted: $gameStarted)
+                    PlayButton
                     //O símbolo $ antes de uma variável de estado em SwiftUI é usado para criar um Binding
                     
                     
@@ -111,7 +108,7 @@ struct TriviaView: View {
                 }
                 .padding()
             }
-        
+            
             
             if showMessage { //MODAL de resultado e proxima pergunta
                 Rectangle()
@@ -176,6 +173,20 @@ struct TriviaView: View {
             }
         }
     }
+    var PlayButton: some View{
+        //** ** deixa o texto BOLD
+        Button("**PLAY**") {
+            viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
+            print(viewModel.questions)
+            gameStarted = true
+        }
+        .font(.largeTitle)
+        .padding()
+        .background(Color.green)
+        .cornerRadius(10)
+    }
+    
+    
     
 }
 
@@ -191,7 +202,7 @@ struct FundoGradient: View {
     
     private let startColor: Color = .blue
     private let endColor: Color = .white
-
+    
     var body: some View {
         LinearGradient(colors: [startColor, endColor], startPoint: .topLeading, endPoint: .bottomTrailing)
             .hueRotation(.degrees(animateGradient ? 45 : 0))
@@ -203,23 +214,4 @@ struct FundoGradient: View {
     }
 }
 
-struct PlayButton: View {
-    @ObservedObject var viewModel: TriviaViewModel
-    
-    let selectedNumberOfQuestions: Int
-    @Binding var gameStarted: Bool
-    //O @Binding cria uma conexão bidirecional entre a propriedade gameStarted na PlayButton e a variável de estado gameStarted na TriviaView. Isso permite que o botão "PLAY" atualize o estado do jogo na View principal.
-    
-    var body: some View{
-        //** ** deixa o texto BOLD
-        Button("**PLAY**") {
-            viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
-            print(viewModel.questions)
-            gameStarted = true
-        }
-        .font(.largeTitle)
-        .padding()
-        .background(Color.green)
-        .cornerRadius(10)
-    }
-}
+
