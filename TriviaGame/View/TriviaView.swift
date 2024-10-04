@@ -10,12 +10,6 @@ import SwiftUI
 struct TriviaView: View {
     @StateObject private var viewModel = TriviaViewModel()
     
-    @State private var gameStarted = false // Controla se o jogo começou
-    @State private var showOptions = false
-    @State private var showMessage = false
-    @State private var message = ""
-    @State private var selectedNumberOfQuestions = 10
-    
     // tudo que tem logica tem que estar na viewmodel, apenas na view o que for relativo a tela
     @State private var animateGradient: Bool = false
     
@@ -25,7 +19,7 @@ struct TriviaView: View {
             FundoGradient();
             
             VStack {
-                if gameStarted {
+                if viewModel.gameStarted {
                     if viewModel.isLoading {
                         ProgressView() // indica o carregamento
                     } else if viewModel.currentQuestionIndex < viewModel.questions.count{
@@ -48,7 +42,7 @@ struct TriviaView: View {
                             .frame(height: 200)
                         }
                         
-                        Text("Question: \(viewModel.currentQuestionIndex) / \(selectedNumberOfQuestions)")
+                        Text("Question: \(viewModel.currentQuestionIndex) / \(viewModel.selectedNumberOfQuestions)")
                         // Exibe a pergunta atual
                         Text(question.questionDecoded)
                             .font(.title2)
@@ -63,7 +57,7 @@ struct TriviaView: View {
                                 .font(.title3)
                                 .padding()
                                 .frame(width: 300, alignment: .center)
-                                .background(Color(showMessage && answer == question.correct_answer ? .green : .white))
+                                .background(Color(viewModel.showMessage && answer == question.correct_answer ? .green : .white))
                                 .cornerRadius(10)
                                 .foregroundColor(.black)
                             }
@@ -76,7 +70,7 @@ struct TriviaView: View {
                     
                     
                     Button("OPTIONS") {
-                        showOptions = true
+                        viewModel.optionsShow(show: true)
                     }
                     .font(.callout)
                     .padding()
@@ -85,13 +79,13 @@ struct TriviaView: View {
                 }
             }
             // Modal de Opções
-            .sheet(isPresented: $showOptions) {
+            .sheet(isPresented: $viewModel.showOptions) {
                 VStack {
                     Text("Select Number of Questions")
                         .font(.title2)
                         .padding()
                     
-                    Picker("Number of Questions", selection: $selectedNumberOfQuestions) {
+                    Picker("Number of Questions", selection: $viewModel.selectedNumberOfQuestions) {
                         ForEach(5..<31, id: \.self) { number in
                             Text("\(number)")
                         }
@@ -99,7 +93,7 @@ struct TriviaView: View {
                     .pickerStyle(.wheel)
                     
                     Button("Confirm") {
-                        showOptions = false
+                        viewModel.optionsShow(show: false)
                     }
                     .foregroundColor(.white)
                     .padding()
@@ -110,20 +104,20 @@ struct TriviaView: View {
             }
             
             
-            if showMessage { //MODAL de resultado e proxima pergunta
+            if viewModel.showMessage { //MODAL de resultado e proxima pergunta
                 Rectangle()
                     .fill(Color.black.opacity(0.5))
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack {
-                    Text(message)
-                        .foregroundColor(message == "Wrong Answer" ? .red : .green)
+                    Text(viewModel.message)
+                        .foregroundColor(viewModel.message == "Wrong Answer" ? .red : .green)
                         .font(.largeTitle)
                         .padding()
                     if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
                         Button("Next Question") {
                             viewModel.goToNextQuestion()
-                            showMessage = false
+                            viewModel.messageShow(show: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -142,8 +136,8 @@ struct TriviaView: View {
                             .padding()
                         
                         Button("Restart Game") {
-                            viewModel.restartGame(amount: selectedNumberOfQuestions)
-                            showMessage = false
+                            viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
+                            viewModel.messageShow(show: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -151,8 +145,8 @@ struct TriviaView: View {
                         .cornerRadius(10)
                         
                         Button("Back to Menu") {
-                            gameStarted = false
-                            showMessage = false
+                            viewModel.startGame(show: false)
+                            viewModel.messageShow(show: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -168,17 +162,17 @@ struct TriviaView: View {
         .ignoresSafeArea()
         .onAppear {
             viewModel.showModal = { message in
-                self.message = message
-                self.showMessage = !message.isEmpty
+                viewModel.message = message
+                viewModel.messageShow(show: !message.isEmpty ? true : false)
             }
         }
     }
     var PlayButton: some View{
         //** ** deixa o texto BOLD
         Button("**PLAY**") {
-            viewModel.fetchQuestions(amount: selectedNumberOfQuestions) // Busca as perguntas ao iniciar
+            viewModel.fetchQuestions(amount: viewModel.selectedNumberOfQuestions) // Busca as perguntas ao iniciar
             print(viewModel.questions)
-            gameStarted = true
+            viewModel.startGame(show: true)
         }
         .font(.largeTitle)
         .padding()

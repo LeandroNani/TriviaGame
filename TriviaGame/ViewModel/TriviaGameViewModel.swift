@@ -14,7 +14,13 @@ class TriviaViewModel: ObservableObject {
     @Published var currentImageURL: URL? // URL da imagem da Unsplash
     @Published var isLoading = false // Indicador de carregamento
     @Published var score = 0 // Pontuação do jogador
+    
+    @Published var gameStarted = false
+    @Published var showOptions = false
+    @Published var showMessage = false
     @Published var message = ""
+    @Published var selectedNumberOfQuestions = 10
+
     
     // Closure para controlar a exibição do modal apos respostas na View
         var showModal: ((_ message: String) -> Void)?
@@ -161,6 +167,22 @@ class TriviaViewModel: ObservableObject {
         currentQuestionIndex = 0
         currentImageURL = nil
         fetchQuestions(amount: amount)
+    }
+    
+    func startGame (show:Bool){
+        gameStarted = show ? true : false
+    }
+    
+    func optionsShow(show:Bool){
+        showOptions = show ? true : false
+    }
+    
+    func messageShow (show:Bool){
+        showMessage = show ? true : false
+    }
+    
+    func setMessage(answer:String){
+        message = answer
     }
         
 }
