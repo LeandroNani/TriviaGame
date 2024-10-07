@@ -169,20 +169,20 @@ class TriviaViewModel: ObservableObject {
         fetchQuestions(amount: amount)
     }
     
-    func startGame (show:Bool){
-        gameStarted = show ? true : false
-    }
-    
-    func optionsShow(show:Bool){
-        showOptions = show ? true : false
-    }
-    
-    func messageShow (show:Bool){
-        showMessage = show ? true : false
-    }
-    
     func setMessage(answer:String){
         message = answer
     }
-        
+    
+    func toggleState(state: String, to: Bool) {
+        switch state {
+        case "startGame":
+            gameStarted = to
+        case "optionsShow":
+            showOptions = to
+        case "messageShow":
+            showMessage = to
+        default:
+            print("Estado desconhecido")
+        }
+    }
 }

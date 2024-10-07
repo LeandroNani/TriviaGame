@@ -70,7 +70,7 @@ struct TriviaView: View {
                     
                     
                     Button("OPTIONS") {
-                        viewModel.optionsShow(show: true)
+                        viewModel.toggleState(state: "optionShow",to: false)
                     }
                     .font(.callout)
                     .padding()
@@ -93,7 +93,7 @@ struct TriviaView: View {
                     .pickerStyle(.wheel)
                     
                     Button("Confirm") {
-                        viewModel.optionsShow(show: false)
+                        viewModel.toggleState(state: "optionShow",to: false)
                     }
                     .foregroundColor(.white)
                     .padding()
@@ -117,7 +117,7 @@ struct TriviaView: View {
                     if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
                         Button("Next Question") {
                             viewModel.goToNextQuestion()
-                            viewModel.messageShow(show: false)
+                            viewModel.toggleState(state: "messageShow", to: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -137,7 +137,7 @@ struct TriviaView: View {
                         
                         Button("Restart Game") {
                             viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
-                            viewModel.messageShow(show: false)
+                            viewModel.toggleState(state: "messageShow", to: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -145,8 +145,8 @@ struct TriviaView: View {
                         .cornerRadius(10)
                         
                         Button("Back to Menu") {
-                            viewModel.startGame(show: false)
-                            viewModel.messageShow(show: false)
+                            viewModel.toggleState(state: "startGame", to: false)
+                            viewModel.toggleState(state: "messageShow", to: false)
                         }
                         .padding()
                         .background(Color.blue)
@@ -163,7 +163,7 @@ struct TriviaView: View {
         .onAppear {
             viewModel.showModal = { message in
                 viewModel.message = message
-                viewModel.messageShow(show: !message.isEmpty ? true : false)
+                viewModel.toggleState(state: "messageShow",to: !message.isEmpty ? true : false)
             }
         }
     }
@@ -172,7 +172,7 @@ struct TriviaView: View {
         Button("**PLAY**") {
             viewModel.fetchQuestions(amount: viewModel.selectedNumberOfQuestions) // Busca as perguntas ao iniciar
             print(viewModel.questions)
-            viewModel.startGame(show: true)
+            viewModel.toggleState(state: "startGame",to: true)
         }
         .font(.largeTitle)
         .padding()
