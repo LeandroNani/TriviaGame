@@ -116,8 +116,10 @@ struct TriviaView: View {
                         .padding()
                     if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
                         Button("Next Question") {
-                            viewModel.goToNextQuestion()
-                            viewModel.toggleState(state: "messageShow", to: false)
+                            Task {
+                                        await viewModel.goToNextQuestion()
+                                        viewModel.toggleState(state: "messageShow", to: false)
+                                    }
                         }
                         .padding()
                         .background(Color.blue)
@@ -136,8 +138,10 @@ struct TriviaView: View {
                             .padding()
                         
                         Button("Restart Game") {
-                            viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
-                            viewModel.toggleState(state: "messageShow", to: false)
+                            Task{
+                                await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
+                                viewModel.toggleState(state: "messageShow", to: false)
+                            }
                         }
                         .padding()
                         .background(Color.blue)
@@ -170,9 +174,10 @@ struct TriviaView: View {
     var PlayButton: some View{
         //** ** deixa o texto BOLD
         Button("**PLAY**") {
-            viewModel.fetchQuestions(amount: viewModel.selectedNumberOfQuestions) // Busca as perguntas ao iniciar
-            print(viewModel.questions)
-            viewModel.toggleState(state: "startGame",to: true)
+            Task {
+                        await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
+                        viewModel.toggleState(state: "startGame", to: true)
+                    }
         }
         .font(.largeTitle)
         .padding()

@@ -29,6 +29,8 @@ class TriviaViewModel: ObservableObject {
     private let unsplashBaseURL = "https://api.unsplash.com/search/photos"
     private let unsplashApiKey = "ytcCruuH67rTRETZseNqJiL8XtUAA-kZSFuFpaVJ70o"
 
+    
+    /*
     // Função para buscar as perguntas da API Trivia
     func fetchQuestions(amount: Int) {
            isLoading = true // Inicia o indicador de carregamento
@@ -137,8 +139,42 @@ class TriviaViewModel: ObservableObject {
                 print("Erro ao decodificar dados da API da Unsplash: \(error)")
             }
         }.resume()
+    }*/
+    
+    func fetchQuestions(amount: Int) async -> TriviaResponse? {
+        guard let url = URL(string: "\(triviaBaseURL)\(amount)") else {
+            print("Erro ao montar a URL da API Trivia.")
+            return nil
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoder = JSONDecoder()
+            let triviaData = try decoder.decode(TriviaResponse.self, from: data)
+            return triviaData
+        } catch {
+            print("Erro ao buscar ou processar dados da API Trivia: \(error)")
+            return nil
+        }
     }
     
+    func fetchImage(for query: String) async -> [ImageModel] {
+        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "\(unsplashBaseURL)?query=\(encodedQuery)&client_id=\(unsplashApiKey)") else {
+            print("Erro ao montar a URL da Unsplash.")
+            return []
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoder = JSONDecoder()
+            let imageData = try decoder.decode(UnsplashResponse.self, from: data)
+            return imageData.results
+        } catch {
+            print("Erro ao buscar ou processar dados da Unsplash: \(error)")
+            return []
+        }
+    }
     
     //Checa se a resposta é a certa da questao
     //for: Atua como um nome de parâmetro externo, tornando a chamada da função mais legível.
@@ -152,21 +188,36 @@ class TriviaViewModel: ObservableObject {
 
         }
     
-    func goToNextQuestion() {
+    func goToNextQuestion() async {
         if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
             currentImageURL = nil
-            fetchImage(for: questions[currentQuestionIndex].category) // Busca a imagem relacionada a proxima pergunta
+            
+            let category = questions[currentQuestionIndex].category
+            let images = await fetchImage(for: category)
+            
+            if let randomImage = images.randomElement() {
+                currentImageURL = randomImage.urls["regular"].flatMap { URL(string: $0) }
+            }
         } else {
             // Fim do jogo
-            // Falta inserir a logica para lidar com o fim do jogo
         }
     }
+
     
-    func restartGame(amount:Int){
+    func restartGame(amount: Int) async {
         currentQuestionIndex = 0
         currentImageURL = nil
-        fetchQuestions(amount: amount)
+        
+        if let triviaData = await fetchQuestions(amount: amount) {
+            questions = triviaData.results
+            if let firstCategory = questions.first?.category {
+                let images = await fetchImage(for: firstCategory)
+                if let randomImage = images.randomElement() {
+                    currentImageURL = randomImage.urls["regular"].flatMap { URL(string: $0) }
+                }
+            }
+        }
     }
     
     func setMessage(answer:String){
