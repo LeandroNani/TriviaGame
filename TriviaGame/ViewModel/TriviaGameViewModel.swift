@@ -141,38 +141,54 @@ class TriviaViewModel: ObservableObject {
         }.resume()
     }*/
     
-    func fetchQuestions(amount: Int) async -> TriviaResponse? {
-        guard let url = URL(string: "\(triviaBaseURL)\(amount)") else {
-            print("Erro ao montar a URL da API Trivia.")
-            return nil
-        }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoder = JSONDecoder()
-            let triviaData = try decoder.decode(TriviaResponse.self, from: data)
-            return triviaData
-        } catch {
-            print("Erro ao buscar ou processar dados da API Trivia: \(error)")
-            return nil
-        }
+    enum FetchType {
+        case trivia
+        case image
     }
     
-    func fetchImage(for query: String) async -> [ImageModel] {
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "\(unsplashBaseURL)?query=\(encodedQuery)&client_id=\(unsplashApiKey)") else {
-            print("Erro ao montar a URL da Unsplash.")
-            return []
+    func fetch(type: FetchType, amount: Int? = nil, query: String? = nil) async -> Any? {
+        var urlString: String
+
+        switch type {
+        case .trivia:
+            //guard let para verificar se o parâmetro amount não é nil.
+            guard let amount = amount else {
+                print("Erro: 'amount' é obrigatório para buscar perguntas.")
+                return nil
+            }
+            urlString = "\(triviaBaseURL)\(amount)"
+            
+        case .image:
+            guard let query = query,
+                  let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+                print("Erro: 'query' é obrigatório para buscar imagens.")
+                return nil
+            }
+            urlString = "\(unsplashBaseURL)?query=\(encodedQuery)&client_id=\(unsplashApiKey)"
+        }
+        
+        
+        //guard let para tenta criar uma URL a partir da string urlString.
+        guard let url = URL(string: urlString) else {
+            print("Erro ao montar a URL.")
+            return nil
         }
 
         do {
+            // data (os dados brutos da resposta) _ (a resposta HTTP, que estamos ignorando)
             let (data, _) = try await URLSession.shared.data(from: url)
             let decoder = JSONDecoder()
-            let imageData = try decoder.decode(UnsplashResponse.self, from: data)
-            return imageData.results
+
+            switch type {
+            case .trivia:
+                return try decoder.decode(TriviaResponse.self, from: data)
+            case .image:
+                return try decoder.decode(UnsplashResponse.self, from: data)
+            }
+            
         } catch {
-            print("Erro ao buscar ou processar dados da Unsplash: \(error)")
-            return []
+            print("Erro ao buscar ou processar dados: \(error)")
+            return nil
         }
     }
     
@@ -192,30 +208,29 @@ class TriviaViewModel: ObservableObject {
         if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
             currentImageURL = nil
-            
+
             let category = questions[currentQuestionIndex].category
-            let images = await fetchImage(for: category)
-            
-            if let randomImage = images.randomElement() {
-                currentImageURL = randomImage.urls["regular"].flatMap { URL(string: $0) }
+            if let images = await fetch(type: .image, query: category) as? UnsplashResponse,
+               let randomImage = images.results.randomElement(),
+               let imageUrl = URL(string: randomImage.urls["regular"] ?? "") {
+                currentImageURL = imageUrl
             }
         } else {
             // Fim do jogo
         }
     }
 
-    
     func restartGame(amount: Int) async {
         currentQuestionIndex = 0
         currentImageURL = nil
-        
-        if let triviaData = await fetchQuestions(amount: amount) {
+
+        if let triviaData = await fetch(type: .trivia, amount: amount) as? TriviaResponse {
             questions = triviaData.results
-            if let firstCategory = questions.first?.category {
-                let images = await fetchImage(for: firstCategory)
-                if let randomImage = images.randomElement() {
-                    currentImageURL = randomImage.urls["regular"].flatMap { URL(string: $0) }
-                }
+            if let firstCategory = questions.first?.category,
+               let images = await fetch(type: .image, query: firstCategory) as? UnsplashResponse,
+               let randomImage = images.results.randomElement(),
+               let imageUrl = URL(string: randomImage.urls["regular"] ?? "") {
+                currentImageURL = imageUrl
             }
         }
     }

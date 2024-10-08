@@ -117,9 +117,9 @@ struct TriviaView: View {
                     if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
                         Button("Next Question") {
                             Task {
-                                        await viewModel.goToNextQuestion()
-                                        viewModel.toggleState(state: "messageShow", to: false)
-                                    }
+                                await viewModel.goToNextQuestion()
+                                viewModel.toggleState(state: "messageShow", to: false)
+                            }
                         }
                         .padding()
                         .background(Color.blue)
@@ -175,9 +175,9 @@ struct TriviaView: View {
         //** ** deixa o texto BOLD
         Button("**PLAY**") {
             Task {
-                        await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
-                        viewModel.toggleState(state: "startGame", to: true)
-                    }
+                await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
+                viewModel.toggleState(state: "startGame", to: true)
+            }
         }
         .font(.largeTitle)
         .padding()
