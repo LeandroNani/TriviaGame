@@ -21,56 +21,19 @@ struct TriviaView: View {
             VStack {
                 if viewModel.gameStarted {
                     if viewModel.isLoading {
-                        ProgressView() // indica o carregamento
-                    } else if viewModel.currentQuestionIndex < viewModel.questions.count{
-                        
+                        ProgressView()
+                    } else if viewModel.currentQuestionIndex < viewModel.questions.count {
                         Text("Score: \(viewModel.score)")
                             .font(.title)
                             .padding()
                         
                         let question = viewModel.questions[viewModel.currentQuestionIndex]
-                        
-                        // Exibe a imagem relacionada a pergunta
-                        if let imageURL = viewModel.currentImageURL {
-                            AsyncImage(url: imageURL) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(height: 200)
-                        }
-                        
-                        Text("Question: \(viewModel.currentQuestionIndex) / \(viewModel.selectedNumberOfQuestions)")
-                        // Exibe a pergunta atual
-                        Text(question.questionDecoded)
-                            .font(.title2)
-                            .padding()
-                        
-                        // Exibe as opções de resposta
-                        Section(header: Text("**Click on the right answer**").font(.title).padding()){
-                            ForEach(question.answers,id: \.self){ answer in
-                                Button(answer){
-                                    viewModel.checkAnswer(for: question, selectedAnswer: answer)
-                                }
-                                .font(.title3)
-                                .padding()
-                                .frame(width: 300, alignment: .center)
-                                .background(Color(viewModel.showMessage && answer == question.correct_answer ? .green : .white))
-                                .cornerRadius(10)
-                                .foregroundColor(.black)
-                            }
-                        }
+                        QuestionView(viewModel: viewModel, question: question)
                     }
                 } else {
-                    //Tela inicial com o botão "PLAY" e "OPTIONS"
                     PlayButton
-                    //O símbolo $ antes de uma variável de estado em SwiftUI é usado para criar um Binding
-                    
-                    
                     Button("OPTIONS") {
-                        viewModel.toggleState(state: "optionShow",to: false)
+                        viewModel.toggleState(state: "optionsShow", to: true)
                     }
                     .font(.callout)
                     .padding()
@@ -78,96 +41,22 @@ struct TriviaView: View {
                     .cornerRadius(10)
                 }
             }
-            // Modal de Opções
             .sheet(isPresented: $viewModel.showOptions) {
-                VStack {
-                    Text("Select Number of Questions")
-                        .font(.title2)
-                        .padding()
-                    
-                    Picker("Number of Questions", selection: $viewModel.selectedNumberOfQuestions) {
-                        ForEach(5..<31, id: \.self) { number in
-                            Text("\(number)")
-                        }
-                    }
-                    .pickerStyle(.wheel)
-                    
-                    Button("Confirm") {
-                        viewModel.toggleState(state: "optionShow",to: false)
-                    }
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.black)
-                    .cornerRadius(10)
-                }
-                .padding()
+                OptionsModalView(showOptions: $viewModel.showOptions, selectedNumberOfQuestions: $viewModel.selectedNumberOfQuestions)
             }
-            
-            
-            if viewModel.showMessage { //MODAL de resultado e proxima pergunta
+            if viewModel.showMessage {
                 Rectangle()
                     .fill(Color.black.opacity(0.5))
                     .edgesIgnoringSafeArea(.all)
                 
-                VStack {
-                    Text(viewModel.message)
-                        .foregroundColor(viewModel.message == "Wrong Answer" ? .red : .green)
-                        .font(.largeTitle)
-                        .padding()
-                    if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
-                        Button("Next Question") {
-                            Task {
-                                await viewModel.goToNextQuestion()
-                                viewModel.toggleState(state: "messageShow", to: false)
-                            }
-                        }
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                    else {
-                        Text("Finished!")
-                            .foregroundColor(.blue)
-                            .font(.largeTitle)
-                            .padding()
-                        
-                        Text("Congrats! Score: \(viewModel.score)")
-                            .foregroundColor(.green)
-                            .font(.largeTitle)
-                            .padding()
-                        
-                        Button("Restart Game") {
-                            Task{
-                                await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
-                                viewModel.toggleState(state: "messageShow", to: false)
-                            }
-                        }
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        
-                        Button("Back to Menu") {
-                            viewModel.toggleState(state: "startGame", to: false)
-                            viewModel.toggleState(state: "messageShow", to: false)
-                        }
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                }
-                .frame(width: 300, height: viewModel.currentQuestionIndex < viewModel.questions.count - 1 ? 200 : 600)
-                .background(Color.white)
-                .cornerRadius(20)
+                ResultModalView(viewModel: viewModel)
             }
-        } // Fim da ZStack
+        }
         .ignoresSafeArea()
         .onAppear {
             viewModel.showModal = { message in
                 viewModel.message = message
-                viewModel.toggleState(state: "messageShow",to: !message.isEmpty ? true : false)
+                viewModel.toggleState(state: "messageShow", to: !message.isEmpty)
             }
         }
     }
@@ -184,9 +73,8 @@ struct TriviaView: View {
         .background(Color.green)
         .cornerRadius(10)
     }
-    
-    
-    
+
+
 }
 
 #Preview {
@@ -213,4 +101,139 @@ struct FundoGradient: View {
     }
 }
 
+struct QuestionView: View {
+    @ObservedObject var viewModel: TriviaViewModel
+    var question: TriviaQuestion
+    
+    var body: some View {
+        VStack {
+            // Exibe a imagem relacionada à pergunta
+            if let imageURL = viewModel.currentImageURL {
+                AsyncImage(url: imageURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(height: 200)
+            }
+            
+            Text("Question: \(viewModel.currentQuestionIndex + 1) / \(viewModel.selectedNumberOfQuestions)")
+            Text(question.questionDecoded)
+                .font(.title2)
+                .padding()
+            
+            AnswerButtonsView(viewModel: viewModel, question: question)
+        }
+    }
+}
 
+struct AnswerButtonsView: View {
+    @ObservedObject var viewModel: TriviaViewModel
+    var question: TriviaQuestion
+    
+    var body: some View {
+        Section(header: Text("**Click on the right answer**").font(.title).padding()) {
+            ForEach(question.answers, id: \.self) { answer in
+                Button(answer) {
+                    viewModel.checkAnswer(for: question, selectedAnswer: answer)
+                }
+                .font(.title3)
+                .padding()
+                .frame(width: 300, alignment: .center)
+                .background(Color(viewModel.showMessage && answer == question.correct_answer ? .green : .white))
+                .cornerRadius(10)
+                .foregroundColor(.black)
+            }
+        }
+    }
+}
+
+struct OptionsModalView: View {
+    @Binding var showOptions: Bool
+    @Binding var selectedNumberOfQuestions: Int
+    
+    var body: some View {
+        VStack {
+            Text("Select Number of Questions")
+                .font(.title2)
+                .padding()
+            
+            Picker("Number of Questions", selection: $selectedNumberOfQuestions) {
+                ForEach(5..<31, id: \.self) { number in
+                    Text("\(number)")
+                }
+            }
+            .pickerStyle(.wheel)
+            
+            Button("Confirm") {
+                showOptions = false
+            }
+            .foregroundColor(.white)
+            .padding()
+            .background(Color.black)
+            .cornerRadius(10)
+        }
+        .padding()
+    }
+}
+
+struct ResultModalView: View {
+    @ObservedObject var viewModel: TriviaViewModel
+    
+    var body: some View {
+        VStack {
+            Text(viewModel.message)
+                .foregroundColor(viewModel.message == "Wrong Answer" ? .red : .green)
+                .font(.largeTitle)
+                .padding()
+            
+            if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
+                Button("Next Question") {
+                    Task {
+                        await viewModel.goToNextQuestion()
+                        viewModel.toggleState(state: "messageShow", to: false)
+                    }
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            } else {
+                Text("Finished!")
+                    .foregroundColor(.blue)
+                    .font(.largeTitle)
+                    .padding()
+                
+                Text("Congrats! Score: \(viewModel.score)")
+                    .foregroundColor(.green)
+                    .font(.largeTitle)
+                    .padding()
+                
+                Button("Restart Game") {
+                    Task{
+                        await viewModel.restartGame(amount: viewModel.selectedNumberOfQuestions)
+                        viewModel.toggleState(state: "messageShow", to: false)
+                    }
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                
+                Button("Back to Menu") {
+                    viewModel.toggleState(state: "startGame", to: false)
+                    viewModel.toggleState(state: "messageShow", to: false)
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+        }
+        .frame(width: 300, height: viewModel.currentQuestionIndex < viewModel.questions.count - 1 ? 200 : 600)
+        .background(Color.white)
+        .cornerRadius(20)
+    }
+}
